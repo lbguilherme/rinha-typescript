@@ -7,7 +7,9 @@ declare module "./parser_utils" {
     [lang]: {
       root: Rule<"file">;
 
-      file: Rule<"value">;
+      semicolon: [";", Repeat<[Rule<"ws">, ";"]>, Rule<"ws">];
+
+      file: [Rule<"value">, Optional<Rule<"semicolon">>];
       term: [
         Rule<"ws">,
         Or<[
@@ -34,7 +36,8 @@ declare module "./parser_utils" {
       parens: ["(", Rule<"value">, ")"];
       factor: [Rule<"term">, Repeat<["*" | "/" | "%", Rule<"term">]>];
       arithmetic: [Rule<"factor">, Repeat<["+" | "-", Rule<"factor">]>];
-      value: [Rule<"arithmetic">, Repeat<["==" | "!=" | ">" | "<" | ">=" | "<=" | "&&" | "||", Rule<"arithmetic">]>];
+      logic: [Rule<"arithmetic">, Repeat<["==" | "!=" | ">" | "<" | ">=" | "<=" | "&&" | "||", Rule<"arithmetic">]>];
+      value: Rule<"logic">;
 
       characters: Repeat<Or<[AnyCharExcept<ControlChars | '"' | "\\">, Rule<"escape">]>>;
       escape: ["\\", Or<['"', "\\", "/", "b", "f", "n", "r", "t"]>];
@@ -43,10 +46,10 @@ declare module "./parser_utils" {
       ident: [Rule<"ws">, RawToken<[Char<"_" | Letters>, Repeat<Char<"_" | Letters | Numbers>>]>, Rule<"ws">];
       var: Rule<"ident">,
 
-      let: ["let", Rule<"ident">, "=", Rule<"value">, ";", Rule<"value">];
+      let: ["let", Rule<"ident">, "=", Rule<"value">, Rule<"semicolon">, Rule<"value">];
       fnOtherArgs: [",", Rule<"ident">],
-      fn: ["fn", Rule<"ws">, "(", Optional<[Rule<"ident">, Repeat<Rule<"fnOtherArgs">>]>, ")", Rule<"ws">, "=>", Rule<"ws">, "{", Rule<"value">, "}"];
-      if: ["if", Rule<"ws">, "(", Rule<"value">, ")", Rule<"ws">, "{", Rule<"value">, "}", Rule<"ws">, "else", Rule<"ws">, "{", Rule<"value">, "}"]
+      fn: ["fn", Rule<"ws">, "(", Optional<[Rule<"ident">, Repeat<Rule<"fnOtherArgs">>]>, ")", Rule<"ws">, "=>", Rule<"ws">, "{", Rule<"value">, Optional<Rule<"semicolon">>, "}"];
+      if: ["if", Rule<"ws">, "(", Rule<"value">, ")", Rule<"ws">, "{", Rule<"value">, Optional<Rule<"semicolon">>, "}", Rule<"ws">, "else", Rule<"ws">, "{", Rule<"value">, Optional<Rule<"semicolon">>, "}"]
       callOtherArgs: [",", Rule<"value">],
       call: [Rule<"var">, "(", Optional<[Rule<"value">, Repeat<Rule<"callOtherArgs">>]>, ")"];
       bool: "true" | "false";
@@ -57,14 +60,14 @@ declare module "./parser_utils" {
 
   interface Mapping<T> {
     [lang]: {
-      file: { expression: T };
+      file: T extends [infer Expr, unknown] ? { expression: Expr } : T;
 
       int: T extends string ? { kind: "Int", value: ParseInt<T> } : T;
 
       parens: T extends [unknown, infer Value, unknown] ? Value : T;
       factor: T extends [infer First, infer Rest] ? CombineLeftOperators<First, Rest> : T;
       arithmetic: T extends [infer First, infer Rest] ? CombineLeftOperators<First, Rest> : T;
-      value: T extends [infer First, infer Rest] ? CombineLeftOperators<First, Rest> : T;
+      logic: T extends [infer First, infer Rest] ? CombineLeftOperators<First, Rest> : T;
 
       term: T extends [unknown, infer Value, unknown] ? Value : T;
       ident: T extends [unknown, infer Value, unknown] ? Value : T;
@@ -114,16 +117,16 @@ declare module "./parser_utils" {
 
       fnOtherArgs: T extends [unknown, infer Value] ? Value : T;
 
-      fn: T extends [unknown, unknown, unknown, null, unknown, unknown, unknown, unknown, unknown, infer Body, unknown] ? {
+      fn: T extends [unknown, unknown, unknown, null, unknown, unknown, unknown, unknown, unknown, infer Body, unknown, unknown] ? {
         kind: "Function",
         parameters: [],
         value: Body
-      } : T extends [unknown, unknown, unknown, [infer FirstArg extends string, infer Rest extends any[]], unknown, unknown, unknown, unknown, unknown, infer Body, unknown] ? {
+      } : T extends [unknown, unknown, unknown, [infer FirstArg extends string, infer Rest extends any[]], unknown, unknown, unknown, unknown, unknown, infer Body, unknown, unknown] ? {
         kind: "Function",
         parameters: WrapText<[FirstArg, ...Rest]>,
         value: Body
       } : T;
-      if: T extends [unknown, unknown, unknown, infer Cond, unknown, unknown, unknown, infer TrueValue, unknown, unknown, unknown, unknown, unknown, infer ElseValue, unknown] ? {
+      if: T extends [unknown, unknown, unknown, infer Cond, unknown, unknown, unknown, infer TrueValue, unknown, unknown, unknown, unknown, unknown, unknown, infer ElseValue, unknown, unknown] ? {
         kind: "If",
         condition: Cond,
         then: TrueValue,

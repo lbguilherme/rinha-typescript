@@ -38,3 +38,10 @@ assert(_ as RinhaValue<"let a = 1; let a = 2; a">, _ as 2);
 assert(_ as RinhaValue<"let f = fn () => { 1 }; f()">, _ as 1);
 assert(_ as RinhaValue<"let a = 1; let f = fn () => { a }; let a = 2; f()">, _ as 1);
 assert(_ as RinhaValue<"let a = 1; let f = fn (a) => { a }; let a = 2; f(3)">, _ as 3);
+
+// Semicolon:
+
+assert(_ as RinhaValue<"1;">, _ as 1);
+assert(_ as RinhaValue<"1;;;;">, _ as 1);
+assert(_ as RinhaValue<"let f = fn () => { 1; }; f();">, _ as 1);
+assert(_ as RinhaValue<"let f = fn (x) => { if (x) { 1; } else { 2; } }; f(false);">, _ as 2);
