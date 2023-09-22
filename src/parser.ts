@@ -45,10 +45,10 @@ declare module "./parser_utils" {
 
       let: ["let", Rule<"ident">, "=", Rule<"value">, ";", Rule<"value">];
       fnOtherArgs: [",", Rule<"ident">],
-      fn: ["fn", Rule<"ws">, "(", Rule<"ident">, Repeat<Rule<"fnOtherArgs">>, ")", Rule<"ws">, "=>", Rule<"ws">, "{", Rule<"value">, "}"];
+      fn: ["fn", Rule<"ws">, "(", Optional<[Rule<"ident">, Repeat<Rule<"fnOtherArgs">>]>, ")", Rule<"ws">, "=>", Rule<"ws">, "{", Rule<"value">, "}"];
       if: ["if", Rule<"ws">, "(", Rule<"value">, ")", Rule<"ws">, "{", Rule<"value">, "}", Rule<"ws">, "else", Rule<"ws">, "{", Rule<"value">, "}"]
       callOtherArgs: [",", Rule<"value">],
-      call: [Rule<"var">, "(", Rule<"value">, Repeat<Rule<"callOtherArgs">>, ")"];
+      call: [Rule<"var">, "(", Optional<[Rule<"value">, Repeat<Rule<"callOtherArgs">>]>, ")"];
       bool: "true" | "false";
 
       tuple: ["(", Rule<"value">, ",", Rule<"value">, ")"];
@@ -93,16 +93,20 @@ declare module "./parser_utils" {
       var: { kind: "Var", text: T };
 
       callOtherArgs: T extends [unknown, infer Value] ? Value : T;
-      call: T extends [{ kind: "Var", text: "print" }, unknown, infer FirstArg, [], unknown] ? {
+      call: T extends [{ kind: "Var", text: "print" }, unknown, [infer FirstArg, []], unknown] ? {
         kind: "Print",
         value: FirstArg
-      } : T extends [{ kind: "Var", text: "first" }, unknown, infer FirstArg, [], unknown] ? {
+      } : T extends [{ kind: "Var", text: "first" }, unknown, [infer FirstArg, []], unknown] ? {
         kind: "First",
         value: FirstArg
-      } : T extends [{ kind: "Var", text: "second" }, unknown, infer FirstArg, [], unknown] ? {
+      } : T extends [{ kind: "Var", text: "second" }, unknown, [infer FirstArg, []], unknown] ? {
         kind: "Second",
         value: FirstArg
-      } : T extends [infer Callee, unknown, infer FirstArg, infer Rest extends any[], unknown] ? {
+      } : T extends [infer Callee, unknown, null, unknown] ? {
+        kind: "Call",
+        callee: Callee,
+        arguments: []
+      } : T extends [infer Callee, unknown, [infer FirstArg, infer Rest extends any[]], unknown] ? {
         kind: "Call",
         callee: Callee,
         arguments: [FirstArg, ...Rest]
@@ -110,9 +114,13 @@ declare module "./parser_utils" {
 
       fnOtherArgs: T extends [unknown, infer Value] ? Value : T;
 
-      fn: T extends [unknown, unknown, unknown, infer FirstArg extends string, infer Rest extends any[], unknown, unknown, unknown, unknown, unknown, infer Body, unknown] ? {
+      fn: T extends [unknown, unknown, unknown, [infer FirstArg extends string, infer Rest extends any[]], unknown, unknown, unknown, unknown, unknown, infer Body, unknown] ? {
         kind: "Function",
         parameters: WrapText<[FirstArg, ...Rest]>,
+        value: Body
+      } : T extends [unknown, unknown, unknown, null, unknown, unknown, unknown, unknown, unknown, infer Body, unknown] ? {
+        kind: "Function",
+        parameters: [],
         value: Body
       } : T;
       if: T extends [unknown, unknown, unknown, infer Cond, unknown, unknown, unknown, infer TrueValue, unknown, unknown, unknown, unknown, unknown, infer ElseValue, unknown] ? {
