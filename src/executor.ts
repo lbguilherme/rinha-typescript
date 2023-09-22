@@ -122,44 +122,44 @@ export type Execute<Vars extends Record<string, unknown>, Ast> =
             (Lhs extends number
               ? Rhs extends number
                 ? Not<Or<GreaterThan<Lhs, Rhs>, IsEqual<Lhs, Rhs>>>
-                : "rhs must be number"
-              : "lhs must be number")
+                : { $error: "rhs must be number" }
+              : { $error: "lhs must be number" })
           ) : Op extends "Gt" ? (
             (Lhs extends number
               ? Rhs extends number
                 ? GreaterThan<Lhs, Rhs>
-                : "rhs must be number"
-              : "lhs must be number")
+                : { $error: "rhs must be number" }
+              : { $error: "lhs must be number" })
           ) : Op extends "Lte" ? (
             (Lhs extends number
               ? Rhs extends number
                 ? Not<GreaterThan<Lhs, Rhs>>
-                : "rhs must be number"
-              : "lhs must be number")
+                : { $error: "rhs must be number" }
+              : { $error: "lhs must be number" })
           ) : Op extends "Gte" ? (
             (Lhs extends number
               ? Rhs extends number
                 ? Or<GreaterThan<Lhs, Rhs>, IsEqual<Lhs, Rhs>>
-                : "rhs must be number"
-              : "lhs must be number")
+                : { $error: "rhs must be number" }
+              : { $error: "lhs must be number" })
           ) : Op extends "Sub" ? (
             (Lhs extends number
               ? Rhs extends number
                 ? Subtract<Lhs, Rhs>
-                : "rhs must be number"
-              : "lhs must be number")
+                : { $error: "rhs must be number" }
+              : { $error: "lhs must be number" })
           ) : Op extends "Add" ? (
             (Lhs extends number
               ? Rhs extends number
                 ? Add<Lhs, Rhs>
-                : "rhs must be number"
-              : "lhs must be number")
+                : { $error: "rhs must be number" }
+              : { $error: "lhs must be number" })
           ) : Op extends "Mul" ? (
             (Lhs extends number
               ? Rhs extends number
                 ? Multiply<Lhs, Rhs>
-                : "rhs must be number"
-              : "lhs must be number")
+                : { $error: "rhs must be number" }
+              : { $error: "lhs must be number" })
           ) : Op extends "Or" ? (
             Or<ValueAsBoolean<Lhs>, ValueAsBoolean<Rhs>>
           ) : Op extends "And" ? (
