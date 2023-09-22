@@ -4,12 +4,15 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "install": "sed -i 's/instantiationDepth === 100 || instantiationCount >= 5e6/false/' node_modules/typescript/lib/tsserver.js && sed -i 's/instantiationDepth === 100 || instantiationCount >= 5e6/false/' node_modules/typescript/lib/typescript.js"
+    "install": "npm run patch-ts node_modules/typescript/lib/tsserver.js && npm run patch-ts node_modules/typescript/lib/typescript.js && npm run patch-ts node_modules/typescript/lib/tsc.js",
+    "patch-ts": "sed -i 's/instantiationDepth === 100 || instantiationCount >= 5e6/false/'",
+    "test": "tsc --noEmit src/spec.ts"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "spec.ts": "^1.1.3",
     "type-plus": "^7.6.0",
     "typescript": "^5.2.2"
   }

@@ -114,13 +114,13 @@ declare module "./parser_utils" {
 
       fnOtherArgs: T extends [unknown, infer Value] ? Value : T;
 
-      fn: T extends [unknown, unknown, unknown, [infer FirstArg extends string, infer Rest extends any[]], unknown, unknown, unknown, unknown, unknown, infer Body, unknown] ? {
-        kind: "Function",
-        parameters: WrapText<[FirstArg, ...Rest]>,
-        value: Body
-      } : T extends [unknown, unknown, unknown, null, unknown, unknown, unknown, unknown, unknown, infer Body, unknown] ? {
+      fn: T extends [unknown, unknown, unknown, null, unknown, unknown, unknown, unknown, unknown, infer Body, unknown] ? {
         kind: "Function",
         parameters: [],
+        value: Body
+      } : T extends [unknown, unknown, unknown, [infer FirstArg extends string, infer Rest extends any[]], unknown, unknown, unknown, unknown, unknown, infer Body, unknown] ? {
+        kind: "Function",
+        parameters: WrapText<[FirstArg, ...Rest]>,
         value: Body
       } : T;
       if: T extends [unknown, unknown, unknown, infer Cond, unknown, unknown, unknown, infer TrueValue, unknown, unknown, unknown, unknown, unknown, infer ElseValue, unknown] ? {
