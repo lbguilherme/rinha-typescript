@@ -22,6 +22,12 @@ assert(_ as RinhaValue<"(1+2)*(3+4)">, _ as 21);
 
 assert(_ as RinhaValue<"1+">, _ as { $error: "Expected end of string, but found '+'" });
 
+// Logic:
+
+assert(_ as RinhaValue<"1 + 2 == 3">, _ as true);
+assert(_ as RinhaValue<"1 + 2 < 3">, _ as false);
+assert(_ as RinhaValue<"1 + 2 < 4">, _ as true);
+
 // Vars:
 
 assert(_ as RinhaValue<"let a = 1; let b = 2; a + b">, _ as 3);
