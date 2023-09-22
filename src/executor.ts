@@ -42,7 +42,7 @@ export type Execute<Vars extends Record<string, unknown>, Ast> =
     : { error: Ast }
   )
   : Ast extends { kind: "Function", parameters: { text: string }[], value: any }
-  ? { value: { literal: "function", args: MapFuncArgs<Ast["parameters"]>, body: Ast["value"] }, stdout: "" }
+  ? { value: { literal: "function", args: MapFuncArgs<Ast["parameters"]>, body: Ast["value"], closure: Omit<Vars, Ast["parameters"][number]["text"]> }, stdout: "" }
   : Ast extends { kind: "Print", value: any }
   ? (
     Execute<Vars, Ast["value"]> extends { value: infer Value, stdout: infer Stdout extends string }
@@ -81,11 +81,11 @@ export type Execute<Vars extends Record<string, unknown>, Ast> =
   )
   : Ast extends { kind: "Call", callee: any, arguments: any[] }
   ? (
-    Execute<Vars, Ast["callee"]> extends { value: { literal: "function", args: infer FuncArgs extends string[], body: infer FuncBody }, stdout: infer FuncStdout extends string }
+    Execute<Vars, Ast["callee"]> extends { value: { literal: "function", args: infer FuncArgs extends string[], body: infer FuncBody, closure: infer Closure extends Record<string, unknown> }, stdout: infer FuncStdout extends string }
     ? (
       CallFunctionArgs<Vars, FuncArgs, Ast["arguments"]> extends { values: infer ArgValues, stdout: infer ArgsStdout extends string }
       ? (
-        Execute<Omit<Vars, FuncArgs[number]> & ArgValues, FuncBody> extends { value: infer ResultValue, stdout: infer ResultStdout extends string }
+        Execute<Closure & ArgValues, FuncBody> extends { value: infer ResultValue, stdout: infer ResultStdout extends string }
         ? { value: ResultValue, stdout: `${FuncStdout}${ArgsStdout}${ResultStdout}` }
         : { error: Ast }
       )
