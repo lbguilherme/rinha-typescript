@@ -27,3 +27,7 @@ O código é dividido em 3 partes principais:
 - `src/parser_utils.ts`: Veio de um projeto pessoal meu, em que construí utilitários para definir um parser utilizando apenas tipos em sintaxe similar a PEG, como se fosse um gerador de parser.
 - `src/parser.ts`: Utiliza os utilitários do `parser_utils.ts` para definir o parser da linguagem Rinha. O output é um tipo literal que segue exatamente o mesmo formato do JSON da AST da Rinha. Exceto que o campo "location".
 - `src/executor.ts`: Excuta o tipo literal da AST utilizando tree walking. O resultado é o último valor evaluado, junto com tudo o que foi escrito no console.
+
+## Isso é útil?
+
+Exatamente nesse exemplo, não muito, já que a linguagem é complexa demais para rodar no TypeScript não modificado. Porém com linguagens mais simples essa mesma técnica se prova útil. Por exemplo, muitas bibliotecas para criar APIs em Node.js permitem que você escreve a rota como `"/users/:userId/posts/:postId"`, você pode então parsear essa string para extrair o nome dos parâmetros e validar se estão corretos durante o type check. Sei que o Express e o Hono fazem isso. Outro caso é para parsear fragmentos de query SQL para entender o tipo de retorno. O query builder Kysely faz isso.
