@@ -207,44 +207,13 @@ type ReplaceRawTokenResult<ParseResult> = ParseResult extends {
   ? { value: Parsed; parsed: Parsed; tail: Tail }
   : ParseResult;
 
-interface LowerCaseTable {
-  A: "a";
-  B: "b";
-  C: "c";
-  D: "d";
-  E: "e";
-  F: "f";
-  G: "g";
-  H: "h";
-  I: "i";
-  J: "j";
-  K: "k";
-  L: "l";
-  M: "m";
-  N: "n";
-  O: "o";
-  P: "p";
-  Q: "q";
-  R: "r";
-  S: "s";
-  T: "t";
-  U: "u";
-  V: "v";
-  W: "w";
-  X: "x";
-  Y: "y";
-  Z: "z";
-}
-
-type ToLowerCase<Letter extends string> = Letter extends keyof LowerCaseTable ? LowerCaseTable[Letter] : Letter;
-
 type CaseInsensitiveMatch<
   Parsed extends string,
   Input extends string,
   Goal extends string,
 > = Goal extends `${infer GoalFirst}${infer GoalTail}`
   ? Input extends `${infer InputFirst}${infer InputTail}`
-    ? ToLowerCase<GoalFirst> extends ToLowerCase<InputFirst>
+    ? Lowercase<GoalFirst> extends Lowercase<InputFirst>
       ? CaseInsensitiveMatch<InputFirst, InputTail, GoalTail>
       : { $error: `Expected '${Goal}' but got '${Input}'` }
     : { $error: `Expected '${Goal}' at end of input` }
@@ -311,11 +280,7 @@ type RemoveErrorsFromUnion<ParseResult> = ParseResult extends {
   : ParseResult;
 
 type HandleParseUnion<ParseResult> = IsUnion<ParseResult> extends true
-  ? [ParseResult] extends [
-      {
-        $error: string;
-      },
-    ]
+  ? [ParseResult] extends [{ $error: string }]
     ? { $error: `Neither option matched: (${Join<TuplifyUnion<ParseResult["$error"]>, ") and (">})` }
     : IsUnion<RemoveErrorsFromUnion<ParseResult>> extends true
     ? { $error: "Ambigous parse" }
