@@ -27,6 +27,13 @@ assert(_ as RinhaValue<"1+">, _ as { $error: "Expected end of string, but found 
 assert(_ as RinhaValue<"1 + 2 == 3">, _ as true);
 assert(_ as RinhaValue<"1 + 2 < 3">, _ as false);
 assert(_ as RinhaValue<"1 + 2 < 4">, _ as true);
+assert(_ as RinhaValue<"1 < 2">, _ as true);
+assert(_ as RinhaValue<"1 <= 2">, _ as true);
+assert(_ as RinhaValue<"2 <= 2">, _ as true);
+assert(_ as RinhaValue<"3 <= 2">, _ as false);
+assert(_ as RinhaValue<"3 >= 2">, _ as true);
+assert(_ as RinhaValue<"2 >= 2">, _ as true);
+assert(_ as RinhaValue<"1 >= 2">, _ as false);
 
 // Vars:
 

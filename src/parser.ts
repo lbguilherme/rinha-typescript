@@ -36,7 +36,7 @@ declare module "./parser_utils" {
       parens: ["(", Rule<"value">, ")"];
       factor: [Rule<"term">, Repeat<["*" | "/" | "%", Rule<"term">]>];
       arithmetic: [Rule<"factor">, Repeat<["+" | "-", Rule<"factor">]>];
-      logic: [Rule<"arithmetic">, Repeat<["==" | "!=" | ">" | "<" | ">=" | "<=" | "&&" | "||", Rule<"arithmetic">]>];
+      logic: [Rule<"arithmetic">, Repeat<[Or<["==", "!=", ">=", "<=", ">", "<", "&&", "||"]>, Rule<"arithmetic">]>];
       value: Rule<"logic">;
 
       characters: Repeat<Or<[AnyCharExcept<ControlChars | '"' | "\\">, Rule<"escape">]>>;
