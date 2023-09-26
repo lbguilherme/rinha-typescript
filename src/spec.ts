@@ -45,6 +45,7 @@ assert(_ as RinhaValue<"let a = 1; let a = 2; a">, _ as 2);
 assert(_ as RinhaValue<"let f = fn () => { 1 }; f()">, _ as 1);
 assert(_ as RinhaValue<"let a = 1; let f = fn () => { a }; let a = 2; f()">, _ as 1);
 assert(_ as RinhaValue<"let a = 1; let f = fn (a) => { a }; let a = 2; f(3)">, _ as 3);
+assert(_ as RinhaValue<"let f = fn (n) => { if (n > 0) { f(n-1) } else { n } }; f(10)">, _ as 0);
 
 // Semicolon:
 

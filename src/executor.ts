@@ -30,14 +30,26 @@ type MapFuncArgs<Args> =
 
 type ValueAsBoolean<Value> = Value extends null | false | undefined | 0 ? false : true;
 
+type RecursiveFunction<Name extends string, Args, Body, Closure> = {
+  literal: "function",
+  args: Args,
+  body: Body,
+  closure: Omit<Closure, Name> & { [key in Name]: RecursiveFunction<Name, Args, Body, Closure> }
+};
+
 export type Execute<Vars extends Record<string, unknown>, Ast> =
   Ast extends { kind: "Let", name: { text: string }, value: any, next: any }
   ? (
     Execute<Vars, Ast["value"]> extends { value: infer Value, stdout: infer Stdout extends string }
     ? (
-      Execute<Omit<Vars, Ast["name"]["text"]> & { [key in Ast["name"]["text"]]: Value }, Ast["next"]> extends { value: infer ValueNext, stdout: infer StdoutNext extends string }
-      ? { value: ValueNext, stdout: `${Stdout}${StdoutNext}` }
-      : { error: Ast }
+      (Value extends { literal: "function", args: infer Args, body: infer Body, closure: infer Closure }
+        ? RecursiveFunction<Ast["name"]["text"], Args, Body, Closure>
+        : Value
+      ) extends infer ValueRec ?
+        Execute<Omit<Vars, Ast["name"]["text"]> & { [key in Ast["name"]["text"]]: ValueRec }, Ast["next"]> extends { value: infer ValueNext, stdout: infer StdoutNext extends string }
+        ? { value: ValueNext, stdout: `${Stdout}${StdoutNext}` }
+        : { error: Ast }
+      : never
     )
     : { error: Ast }
   )
