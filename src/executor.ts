@@ -37,6 +37,12 @@ type RecursiveFunction<Name extends string, Args, Body, Closure> = {
   closure: Omit<Closure, Name> & { [key in Name]: RecursiveFunction<Name, Args, Body, Closure> }
 };
 
+type DivMod<A extends number | bigint, B extends number | bigint, PartialResult extends number | bigint = 0> =
+  Not<GreaterThan<B, A>> extends true ? DivMod<Subtract<A, B>, B, Add<PartialResult, 1>> : { quotient: PartialResult, remainder: A };
+
+type Div<A extends number | bigint, B extends number | bigint> = DivMod<A, B> extends { quotient: infer Q } ? Q : never;
+type Mod<A extends number | bigint, B extends number | bigint> = DivMod<A, B> extends { remainder: infer R } ? R : never;
+
 export type Execute<Vars extends Record<string, unknown>, Ast> =
   Ast extends { kind: "Let", name: { text: string }, value: any, next: any }
   ? (
@@ -171,6 +177,18 @@ export type Execute<Vars extends Record<string, unknown>, Ast> =
             (Lhs extends number | bigint
               ? Rhs extends number | bigint
                 ? Multiply<Lhs, Rhs>
+                : { $error: "rhs must be number" }
+              : { $error: "lhs must be number" })
+          ) : Op extends "Div" ? (
+            (Lhs extends number | bigint
+              ? Rhs extends number | bigint
+                ? Div<Lhs, Rhs>
+                : { $error: "rhs must be number" }
+              : { $error: "lhs must be number" })
+          ) : Op extends "Mod" ? (
+            (Lhs extends number | bigint
+              ? Rhs extends number | bigint
+                ? Mod<Lhs, Rhs>
                 : { $error: "rhs must be number" }
               : { $error: "lhs must be number" })
           ) : Op extends "Or" ? (

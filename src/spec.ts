@@ -30,6 +30,11 @@ assert(_ as RinhaValue<"1180591620717411303424">, _ as 1180591620717411303424n);
 assert(_ as RinhaPrint<"print(10)">, _ as "10\n");
 assert(_ as RinhaPrint<"print(-14)">, _ as "-14\n");
 assert(_ as RinhaPrint<"print(1180591620717411303424)">, _ as "1180591620717411303424\n");
+assert(_ as RinhaValue<"4 % 2">, _ as 0);
+assert(_ as RinhaValue<"5 % 2">, _ as 1);
+assert(_ as RinhaValue<"6 % 2">, _ as 0);
+assert(_ as RinhaValue<"3 / 2">, _ as 1);
+assert(_ as RinhaValue<"30 / 2">, _ as 15);
 
 assert(_ as RinhaValue<"1+">, _ as { $error: "Expected end of string, but found '+'" });
 
