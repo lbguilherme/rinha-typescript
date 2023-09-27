@@ -8,9 +8,7 @@ Sim, não tem nenhum código real aqui, apenas tipos. O TypeScript é Turing com
 
 Infelizmente o TypeScript possui um limite de recursão de tipos que limita bastante processamentos como esse. Isso não é configurável. Por conta disso estamos aplicando um pequeno patch no TypeScript para remover esse limite. Veja essa issue para mais detalhes: https://github.com/microsoft/TypeScript/pull/44997.
 
-Note que a execução demora bastante dependendo do programa. Por exemplo, fib.rinha demora ~20 segundos em meu computador.
-
-Além disso, os operadores de divisão (`/`) e módulo (`%`) não foram implementados, pois seriam bastante complexos de serem simulados com tipos, embora não impossível.
+Como um bônus, o TypeScript já provê para a gente memoization das chamadas de funções puras, então mesmo um `fib(100)` funciona rapidamente, em tempo linear.
 
 ## Como executar
 
