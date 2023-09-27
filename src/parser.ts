@@ -10,7 +10,7 @@ declare module "./parser_utils" {
       semicolon: [";", Repeat<[Rule<"ws">, ";"]>, Rule<"ws">];
 
       file: [Rule<"value">, Optional<Rule<"semicolon">>];
-      term: [
+      expr: [
         Rule<"ws">,
         Or<[
           Rule<"int">,
@@ -34,10 +34,13 @@ declare module "./parser_utils" {
       int: RawToken<"0" | [Optional<"-">, Rule<"nonZeroDigit">, Repeat<Rule<"digit">>]>;
 
       parens: ["(", Rule<"value">, ")"];
-      factor: [Rule<"term">, Repeat<["*" | "/" | "%", Rule<"term">]>];
-      arithmetic: [Rule<"factor">, Repeat<["+" | "-", Rule<"factor">]>];
-      logic: [Rule<"arithmetic">, Repeat<[Or<["==", "!=", ">=", "<=", ">", "<", "&&", "||"]>, Rule<"arithmetic">]>];
-      value: Rule<"logic">;
+      mul_expr: [Rule<"expr">, Repeat<["*" | "/" | "%", Rule<"expr">]>];
+      add_expr: [Rule<"mul_expr">, Repeat<["+" | "-", Rule<"mul_expr">]>];
+      comp_expr: [Rule<"add_expr">, Repeat<[Or<[">=", "<=", ">", "<"]>, Rule<"add_expr">]>];
+      eq_expr: [Rule<"comp_expr">, Repeat<[Or<["==", "!="]>, Rule<"comp_expr">]>];
+      and_expr: [Rule<"eq_expr">, Repeat<["&&", Rule<"eq_expr">]>];
+      or_expr: [Rule<"and_expr">, Repeat<["||", Rule<"and_expr">]>];
+      value: Rule<"or_expr">;
 
       characters: Repeat<Or<[AnyCharExcept<ControlChars | '"' | "\\">, Rule<"escape">]>>;
       escape: ["\\", Or<['"', "\\", "/", "b", "f", "n", "r", "t"]>];
@@ -65,11 +68,15 @@ declare module "./parser_utils" {
       int: T extends string ? { kind: "Int", value: ParseInt<T> } : T;
 
       parens: T extends [unknown, infer Value, unknown] ? Value : T;
-      factor: T extends [infer First, infer Rest] ? CombineLeftOperators<First, Rest> : T;
-      arithmetic: T extends [infer First, infer Rest] ? CombineLeftOperators<First, Rest> : T;
+      mul_expr: T extends [infer First, infer Rest] ? CombineLeftOperators<First, Rest> : T;
+      add_expr: T extends [infer First, infer Rest] ? CombineLeftOperators<First, Rest> : T;
+      comp_expr: T extends [infer First, infer Rest] ? CombineLeftOperators<First, Rest> : T;
+      eq_expr: T extends [infer First, infer Rest] ? CombineLeftOperators<First, Rest> : T;
+      and_expr: T extends [infer First, infer Rest] ? CombineLeftOperators<First, Rest> : T;
+      or_expr: T extends [infer First, infer Rest] ? CombineLeftOperators<First, Rest> : T;
       logic: T extends [infer First, infer Rest] ? CombineLeftOperators<First, Rest> : T;
 
-      term: T extends [unknown, infer Value, unknown] ? Value : T;
+      expr: T extends [unknown, infer Value, unknown] ? Value : T;
       ident: T extends [unknown, infer Value, unknown] ? Value : T;
 
       string: T extends [unknown, infer Contents, unknown] ? { kind: "Str", value: Contents } : T;

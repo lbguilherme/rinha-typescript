@@ -45,6 +45,10 @@ assert(_ as RinhaValue<"3 <= 2">, _ as false);
 assert(_ as RinhaValue<"3 >= 2">, _ as true);
 assert(_ as RinhaValue<"2 >= 2">, _ as true);
 assert(_ as RinhaValue<"1 >= 2">, _ as false);
+assert(_ as RinhaValue<"1 > 2 != 2 > 1">, _ as true);
+assert(_ as RinhaValue<"1 > 2 == 3 > 4">, _ as true);
+assert(_ as RinhaValue<"true && true || true && false">, _ as true);
+assert(_ as RinhaValue<"false && true || true && false">, _ as false);
 
 // Vars:
 
