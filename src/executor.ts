@@ -3,7 +3,7 @@ import { Add, GreaterThan, IsEqual, Not, And, Or, Subtract, Multiply } from "typ
 
 type Stringify<Value> =
   Value extends string ? Value :
-  Value extends number | true | false ? `${Value}` :
+  Value extends number | bigint | true | false ? `${Value}` :
   Value extends [infer First, infer Second] ? `(${Stringify<First>}, ${Stringify<Second>})` :
   Value extends { kind: string } ? `<unevaluated ast ${Value["kind"]}>` :
   Value extends { literal: "function" } ? `<#closure>` : "null";
@@ -77,7 +77,7 @@ export type Execute<Vars extends Record<string, unknown>, Ast> =
   ? { value: Vars[Ast["text"]], stdout: `` }
   : Ast extends { kind: "Str", value: string }
   ? { value: Ast["value"], stdout: `` }
-  : Ast extends { kind: "Int", value: number }
+  : Ast extends { kind: "Int", value: number | bigint }
   ? { value: Ast["value"], stdout: `` }
   : Ast extends { kind: "Bool", value: boolean }
   ? { value: Ast["value"], stdout: `` }
@@ -131,44 +131,44 @@ export type Execute<Vars extends Record<string, unknown>, Ast> =
       ? (
         {
           value: Op extends "Lt" ? (
-            (Lhs extends number
-              ? Rhs extends number
+            (Lhs extends number | bigint
+              ? Rhs extends number | bigint
                 ? Not<Or<GreaterThan<Lhs, Rhs>, IsEqual<Lhs, Rhs>>>
                 : { $error: "rhs must be number" }
               : { $error: "lhs must be number" })
           ) : Op extends "Gt" ? (
-            (Lhs extends number
-              ? Rhs extends number
+            (Lhs extends number | bigint
+              ? Rhs extends number | bigint
                 ? GreaterThan<Lhs, Rhs>
                 : { $error: "rhs must be number" }
               : { $error: "lhs must be number" })
           ) : Op extends "Lte" ? (
-            (Lhs extends number
-              ? Rhs extends number
+            (Lhs extends number | bigint
+              ? Rhs extends number | bigint
                 ? Not<GreaterThan<Lhs, Rhs>>
                 : { $error: "rhs must be number" }
               : { $error: "lhs must be number" })
           ) : Op extends "Gte" ? (
-            (Lhs extends number
-              ? Rhs extends number
+            (Lhs extends number | bigint
+              ? Rhs extends number | bigint
                 ? Or<GreaterThan<Lhs, Rhs>, IsEqual<Lhs, Rhs>>
                 : { $error: "rhs must be number" }
               : { $error: "lhs must be number" })
           ) : Op extends "Sub" ? (
-            (Lhs extends number
-              ? Rhs extends number
+            (Lhs extends number | bigint
+              ? Rhs extends number | bigint
                 ? Subtract<Lhs, Rhs>
                 : { $error: "rhs must be number" }
               : { $error: "lhs must be number" })
           ) : Op extends "Add" ? (
-            (Lhs extends number
-              ? Rhs extends number
+            (Lhs extends number | bigint
+              ? Rhs extends number | bigint
                 ? Add<Lhs, Rhs>
                 : { $error: "rhs must be number" }
               : { $error: "lhs must be number" })
           ) : Op extends "Mul" ? (
-            (Lhs extends number
-              ? Rhs extends number
+            (Lhs extends number | bigint
+              ? Rhs extends number | bigint
                 ? Multiply<Lhs, Rhs>
                 : { $error: "rhs must be number" }
               : { $error: "lhs must be number" })

@@ -19,6 +19,17 @@ assert(_ as RinhaValue<"1 + (2 * 3) + 4">, _ as 11);
 assert(_ as RinhaValue<"(1 + 2) * (3 + 4)">, _ as 21);
 assert(_ as RinhaValue<"  ( 1 + 2  ) \t* ( 3   + 4  \n\n ) ">, _ as 21);
 assert(_ as RinhaValue<"(1+2)*(3+4)">, _ as 21);
+assert(_ as RinhaValue<"-1*-1">, _ as 1);
+assert(_ as RinhaValue<"1024 * 1024">, _ as 1048576);
+assert(_ as RinhaValue<"1024 * 1024 * 1024">, _ as 1073741824);
+assert(_ as RinhaValue<"1024 * 1024 * 1024 * 1024">, _ as 1099511627776);
+assert(_ as RinhaValue<"1024 * 1024 * 1024 * 1024 * 1024">, _ as 1125899906842624);
+assert(_ as RinhaValue<"1024 * 1024 * 1024 * 1024 * 1024 * 1024">, _ as 1152921504606846976n);
+assert(_ as RinhaValue<"1024 * 1024 * 1024 * 1024 * 1024 * 1024 * 1024">, _ as 1180591620717411303424n);
+assert(_ as RinhaValue<"1180591620717411303424">, _ as 1180591620717411303424n);
+assert(_ as RinhaStdOut<"print(10)">, _ as "10\n");
+assert(_ as RinhaStdOut<"print(-14)">, _ as "-14\n");
+assert(_ as RinhaStdOut<"print(1180591620717411303424)">, _ as "1180591620717411303424\n");
 
 assert(_ as RinhaValue<"1+">, _ as { $error: "Expected end of string, but found '+'" });
 
@@ -42,6 +53,7 @@ assert(_ as RinhaValue<"let a = 1; let a = 2; a">, _ as 2);
 
 // Functions:
 
+assert(_ as RinhaStdOut<"print(fn () => { 1 })">, _ as "<#closure>\n");
 assert(_ as RinhaValue<"let f = fn () => { 1 }; f()">, _ as 1);
 assert(_ as RinhaValue<"let a = 1; let f = fn () => { a }; let a = 2; f()">, _ as 1);
 assert(_ as RinhaValue<"let a = 1; let f = fn (a) => { a }; let a = 2; f(3)">, _ as 3);

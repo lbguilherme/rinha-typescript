@@ -171,7 +171,7 @@ type Concat<Strs extends string[]> = Strs extends [infer First extends string, .
   ? `${First}${Concat<Rest>}`
   : "";
 
-type ParseInt<T> = T extends `${infer N extends number}` ? (number extends N ? T : N) : never;
+type ParseInt<T> = T extends `${infer N extends number | bigint}` ? (number | bigint extends N ? T : N) : never;
 
 type ControlChars =
   | "\x01"
