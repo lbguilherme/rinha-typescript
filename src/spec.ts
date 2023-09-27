@@ -66,6 +66,13 @@ assert(_ as RinhaValue<`"hello"`>, _ as "hello");
 assert(_ as RinhaValue<`"a = " + 2`>, _ as "a = 2");
 assert(_ as RinhaValue<`10 + "a"`>, _ as "10a");
 assert(_ as RinhaValue<`"a" + "b"`>, _ as "ab");
+assert(_ as RinhaValue<`"\\\\"`>, _ as "\\");
+assert(_ as RinhaValue<`"\\""`>, _ as '"');
+assert(_ as RinhaValue<`"\\t"`>, _ as "\t");
+assert(_ as RinhaValue<`"\\n"`>, _ as "\n");
+assert(_ as RinhaValue<`"\\r"`>, _ as "\r");
+assert(_ as RinhaValue<`"\\b"`>, _ as "\b");
+assert(_ as RinhaValue<`"\\f"`>, _ as "\f");
 
 // Print:
 
@@ -90,6 +97,8 @@ assert(_ as RinhaPrint<"let fib = fn (n, a, b) => { let _ = print(a); if (n == 0
 assert(_ as RinhaValue<"let f = fn () => { let x = 1; fn () => { x } }; let g = f(); g()">, _ as 1);
 assert(_ as RinhaValue<"let f = fn () => { fn () => { 2 } }; f()()">, _ as 2);
 assert(_ as RinhaValue<"fn () => { fn () => { 3 } }()()">, _ as 3);
+assert(_ as RinhaValue<`let sum = fn (n) => { if (n == 0) { 0 } else { n + sum(n - 1) } }; (sum(10), sum(100))`>, _ as [55, 5050]);
+assert(_ as RinhaPrint<`let sum = fn (n) => { let _ = print(n); if (n == 0) { 0 } else { n + sum(n - 1) } }; sum(10)`>, _ as "10\n9\n8\n7\n6\n5\n4\n3\n2\n1\n0\n");
 
 // Semicolon:
 
@@ -105,3 +114,8 @@ assert(_ as RinhaPrint<"print((1,2))">, _ as "(1, 2)\n");
 assert(_ as RinhaValue<"first((1, 2))">, _ as 1);
 assert(_ as RinhaValue<"second((1, 2))">, _ as 2);
 assert(_ as RinhaValue<`let reduce = fn (t, f) => { if (second(t) == 0) { first(t) } else { f(first(t), reduce(second(t), f)) } }; reduce((1, (2, (3, (4, 0)))), fn (a, b) => { a + b})`>, _ as 10);
+
+// If:
+
+assert(_ as RinhaValue<"if (true) { 1 } else { 2 }">, _ as 1);
+assert(_ as RinhaValue<"if (false) { 1 } else { 2 }">, _ as 2);
