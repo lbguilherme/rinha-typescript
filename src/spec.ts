@@ -55,6 +55,12 @@ assert(_ as RinhaValue<"false && true || true && false">, _ as false);
 assert(_ as RinhaValue<"let a = 1; let b = 2; a + b">, _ as 3);
 assert(_ as RinhaValue<"let a = 1; let a = 2; a">, _ as 2);
 
+// String:
+
+assert(_ as RinhaValue<`"hello"`>, _ as "hello");
+assert(_ as RinhaValue<`"a = " + 2`>, _ as "a = 2");
+assert(_ as RinhaValue<`10 + "a"`>, _ as "10a");
+
 // Functions:
 
 assert(_ as RinhaStdOut<"print(fn () => { 1 })">, _ as "<#closure>\n");
@@ -64,6 +70,7 @@ assert(_ as RinhaValue<"let a = 1; let f = fn (a) => { a }; let a = 2; f(3)">, _
 assert(_ as RinhaValue<"let f = fn (n) => { if (n > 0) { f(n-1) } else { n } }; f(10)">, _ as 0);
 assert(_ as RinhaValue<"(fn (sum) => { print(sum(10, 12)) })(fn (a, b) => { a + b })">, _ as 22);
 assert(_ as RinhaValue<"let execute = fn (func, n) => { func(n) }; let square = fn (n) => { n * n }; execute(square, 4)">, _ as 16);
+assert(_ as RinhaValue<"let fib = fn (n, a, b) => { if (n == 0) { a } else { fib(n - 1, b, a + b) } }; fib(100, 0, 1)">, _ as 354224848179261915075n);
 
 // Semicolon:
 

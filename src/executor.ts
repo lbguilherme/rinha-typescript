@@ -164,8 +164,9 @@ export type Execute<Vars extends Record<string, unknown>, Ast> =
             (Lhs extends number | bigint
               ? Rhs extends number | bigint
                 ? Add<Lhs, Rhs>
-                : { $error: "rhs must be number" }
-              : { $error: "lhs must be number" })
+                : Rhs extends string ? `${Stringify<Lhs>}${Rhs}` : { $error: "rhs must be number or string" }
+              : Lhs extends string ? `${Lhs}${Stringify<Rhs>}`
+                  : Rhs extends string ? `${Stringify<Lhs>}${Rhs}` : { $error: "lhs must be number or string" })
           ) : Op extends "Mul" ? (
             (Lhs extends number | bigint
               ? Rhs extends number | bigint
