@@ -20,7 +20,6 @@ declare module "./parser_utils" {
           Rule<"bool">,
           Rule<"tuple">,
           Rule<"if">,
-          Rule<"call">,
           Rule<"var">,
           Rule<"parens">
         ]>,
@@ -34,7 +33,7 @@ declare module "./parser_utils" {
       int: RawToken<"0" | [Optional<"-">, Rule<"nonZeroDigit">, Repeat<Rule<"digit">>]>;
 
       parens: ["(", Rule<"value">, ")"];
-      mul_expr: [Rule<"expr">, Repeat<["*" | "/" | "%", Rule<"expr">]>];
+      mul_expr: [Rule<"call_expr">, Repeat<["*" | "/" | "%", Rule<"call_expr">]>];
       add_expr: [Rule<"mul_expr">, Repeat<["+" | "-", Rule<"mul_expr">]>];
       comp_expr: [Rule<"add_expr">, Repeat<[Or<[">=", "<=", ">", "<"]>, Rule<"add_expr">]>];
       eq_expr: [Rule<"comp_expr">, Repeat<[Or<["==", "!="]>, Rule<"comp_expr">]>];
@@ -46,7 +45,7 @@ declare module "./parser_utils" {
       escape: ["\\", Or<['"', "\\", "/", "b", "f", "n", "r", "t"]>];
       string: ['"', Rule<"characters">, '"'];
 
-      ident: [Rule<"ws">, RawToken<[Char<"_" | Letters>, Repeat<Char<"_" | Letters | Numbers>>]>, Rule<"ws">];
+      ident: [Rule<"ws">, Not<"fn" | "let" | "if" | "true" | "false">, RawToken<[Char<"_" | Letters>, Repeat<Char<"_" | Letters | Numbers>>]>, Rule<"ws">];
       var: Rule<"ident">,
 
       let: ["let", Rule<"ident">, "=", Rule<"value">, Rule<"semicolon">, Rule<"value">];
@@ -54,7 +53,8 @@ declare module "./parser_utils" {
       fn: ["fn", Rule<"ws">, "(", Optional<[Rule<"ident">, Repeat<Rule<"fnOtherArgs">>]>, ")", Rule<"ws">, "=>", Rule<"ws">, "{", Rule<"value">, Optional<Rule<"semicolon">>, "}"];
       if: ["if", Rule<"ws">, "(", Rule<"value">, ")", Rule<"ws">, "{", Rule<"value">, Optional<Rule<"semicolon">>, "}", Rule<"ws">, "else", Rule<"ws">, "{", Rule<"value">, Optional<Rule<"semicolon">>, "}"]
       callOtherArgs: [",", Rule<"value">],
-      call: [Rule<"var"> | Rule<"parens">, "(", Optional<[Rule<"value">, Repeat<Rule<"callOtherArgs">>]>, ")"];
+      callArgs: [Rule<"ws">, "(", Optional<[Rule<"value">, Repeat<Rule<"callOtherArgs">>]>, ")", Rule<"ws">],
+      call_expr: [Rule<"expr">, Repeat<Rule<"callArgs">>];
       bool: "true" | "false";
 
       tuple: ["(", Rule<"value">, ",", Rule<"value">, ")"];
@@ -77,7 +77,7 @@ declare module "./parser_utils" {
       logic: T extends [infer First, infer Rest] ? CombineLeftOperators<First, Rest> : T;
 
       expr: T extends [unknown, infer Value, unknown] ? Value : T;
-      ident: T extends [unknown, infer Value, unknown] ? Value : T;
+      ident: T extends [unknown, null, infer Value, unknown] ? Value : T;
 
       string: T extends [unknown, infer Contents, unknown] ? { kind: "Str", value: Contents } : T;
       characters: T extends string[] ? Concat<T> : never;
@@ -103,24 +103,23 @@ declare module "./parser_utils" {
       var: { kind: "Var", text: T };
 
       callOtherArgs: T extends [unknown, infer Value] ? Value : T;
-      call: T extends [{ kind: "Var", text: "print" }, unknown, [infer FirstArg, []], unknown] ? {
-        kind: "Print",
-        value: FirstArg
-      } : T extends [{ kind: "Var", text: "first" }, unknown, [infer FirstArg, []], unknown] ? {
-        kind: "First",
-        value: FirstArg
-      } : T extends [{ kind: "Var", text: "second" }, unknown, [infer FirstArg, []], unknown] ? {
-        kind: "Second",
-        value: FirstArg
-      } : T extends [infer Callee, unknown, null, unknown] ? {
-        kind: "Call",
-        callee: Callee,
-        arguments: []
-      } : T extends [infer Callee, unknown, [infer FirstArg, infer Rest extends any[]], unknown] ? {
-        kind: "Call",
-        callee: Callee,
-        arguments: [FirstArg, ...Rest]
-      } : T
+      callArgs: T extends [unknown, unknown, null, unknown, unknown] ? [] : T extends [unknown, unknown, [infer FirstArg, infer Rest extends any[]], unknown, unknown] ? [FirstArg, ...Rest] : T,
+
+      call_expr: (T extends [infer Callee, infer MultiArgs] ? CombineCalls<Callee, MultiArgs> : T) extends infer Call ?
+          Call extends { callee: { kind: "Var", text: "print" }, arguments: [infer Value] } ? {
+            kind: "Print",
+            value: Value
+          } :
+          Call extends { callee: { kind: "Var", text: "first" }, arguments: [infer Value] } ? {
+            kind: "First",
+            value: Value
+          } :
+          Call extends { callee: { kind: "Var", text: "second" }, arguments: [infer Value] } ? {
+            kind: "Second",
+            value: Value
+          } :
+          Call
+        : T
 
       fnOtherArgs: T extends [unknown, infer Value] ? Value : T;
 
@@ -173,6 +172,13 @@ type WrapText<A extends string[]> = A extends [infer First, ...infer Rest extend
 type CombineLeftOperators<Left, Rest> = Rest extends [[infer Op extends keyof BinaryOp, infer Right], ...infer Next]
   ? CombineLeftOperators<{ kind: "Binary", lhs: Left; op: BinaryOp[Op]; rhs: Right }, Next>
   : Left;
+
+type CombineCalls<Callee, MultiArgs> = MultiArgs extends [] ? Callee :
+  MultiArgs extends [infer Args, ...infer NextCallArgs] ? CombineCalls<{
+    kind: "Call",
+    callee: Callee,
+    arguments: Args
+  }, NextCallArgs> : never;
 
 type Concat<Strs extends string[]> = Strs extends [infer First extends string, ...infer Rest extends string[]]
   ? `${First}${Concat<Rest>}`
