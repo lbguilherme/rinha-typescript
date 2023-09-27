@@ -15,14 +15,14 @@ declare module "./parser_utils" {
         Or<[
           Rule<"int">,
           Rule<"string">,
-          Rule<"parens">,
           Rule<"let">,
           Rule<"fn">,
           Rule<"bool">,
           Rule<"tuple">,
           Rule<"if">,
           Rule<"call">,
-          Rule<"var">
+          Rule<"var">,
+          Rule<"parens">
         ]>,
         Rule<"ws">,
       ];
@@ -51,7 +51,7 @@ declare module "./parser_utils" {
       fn: ["fn", Rule<"ws">, "(", Optional<[Rule<"ident">, Repeat<Rule<"fnOtherArgs">>]>, ")", Rule<"ws">, "=>", Rule<"ws">, "{", Rule<"value">, Optional<Rule<"semicolon">>, "}"];
       if: ["if", Rule<"ws">, "(", Rule<"value">, ")", Rule<"ws">, "{", Rule<"value">, Optional<Rule<"semicolon">>, "}", Rule<"ws">, "else", Rule<"ws">, "{", Rule<"value">, Optional<Rule<"semicolon">>, "}"]
       callOtherArgs: [",", Rule<"value">],
-      call: [Rule<"var">, "(", Optional<[Rule<"value">, Repeat<Rule<"callOtherArgs">>]>, ")"];
+      call: [Rule<"var"> | Rule<"parens">, "(", Optional<[Rule<"value">, Repeat<Rule<"callOtherArgs">>]>, ")"];
       bool: "true" | "false";
 
       tuple: ["(", Rule<"value">, ",", Rule<"value">, ")"];

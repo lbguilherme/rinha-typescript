@@ -58,6 +58,8 @@ assert(_ as RinhaValue<"let f = fn () => { 1 }; f()">, _ as 1);
 assert(_ as RinhaValue<"let a = 1; let f = fn () => { a }; let a = 2; f()">, _ as 1);
 assert(_ as RinhaValue<"let a = 1; let f = fn (a) => { a }; let a = 2; f(3)">, _ as 3);
 assert(_ as RinhaValue<"let f = fn (n) => { if (n > 0) { f(n-1) } else { n } }; f(10)">, _ as 0);
+assert(_ as RinhaValue<"(fn (sum) => { print(sum(10, 12)) })(fn (a, b) => { a + b })">, _ as 22);
+assert(_ as RinhaValue<"let execute = fn (func, n) => { func(n) }; let square = fn (n) => { n * n }; execute(square, 4)">, _ as 16);
 
 // Semicolon:
 
