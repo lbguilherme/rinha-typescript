@@ -1,0 +1,21 @@
+let sortedInsert = fn (value, list) => {
+    if (list == 0) {
+        (value, list)
+    } else {
+        if (value < first(list)) {
+            (value, list)
+        } else {
+            (first(list), sortedInsert(value, second(list)))
+        }
+    }
+};
+
+let insertionSort = fn (list) => {
+    if (list == 0) {
+        list
+    } else {
+        sortedInsert(first(list), insertionSort(second(list)))
+    }
+};
+
+print(insertionSort((5, (4, (3, (2, (1, 0)))))))

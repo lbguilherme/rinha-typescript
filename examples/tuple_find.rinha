@@ -1,0 +1,27 @@
+let find = fn (tuples, depth, target) => {
+    let f = fn (tuples, depth) => {
+        if(depth == 0){
+            if(first(tuples) == target){
+                target
+            }else{
+                second(tuples)
+            }
+        }else{
+            let res = f(first(tuples), depth-1);
+            if(res == target){
+                target
+            }else{
+                f(second(tuples), depth-1)
+            }
+        }
+    };
+    f(tuples, depth)
+};
+let data = (((("a", "b"), ("c", "d")), (("e", "f"), ("g", "h"))), ((("i", "j"), ("k", "l")), (("m", "n"), ("o", "p"))));
+let target = "h";
+let res = find(data, 3, target);
+print(if (res == target) {
+    "found: " + res
+}else{
+    "not found: " + target
+})

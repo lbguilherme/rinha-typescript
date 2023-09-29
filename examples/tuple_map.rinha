@@ -1,0 +1,25 @@
+let insert = fn (value, list) => {
+    if (list == 0) {
+        (value, list)
+    } else {
+        (first(list), insert(value, second(list)))
+    }
+};
+
+let mmap = fn (list, callback, returnList) => {
+    if (list == 0) {
+        list
+    } else {
+        insert(callback(first(list)), mmap(second(list), callback, returnList))
+    }
+};
+
+let map = fn (list, callback) => {
+    mmap(list, callback, 0)
+};
+
+let addOne = fn (x) => {
+    print(x + 1)
+};
+
+map((5, (4, (3, (2, (1, 0))))), addOne)

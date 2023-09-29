@@ -119,3 +119,62 @@ assert(_ as RinhaValue<`let reduce = fn (t, f) => { if (second(t) == 0) { first(
 
 assert(_ as RinhaValue<"if (true) { 1 } else { 2 }">, _ as 1);
 assert(_ as RinhaValue<"if (false) { 1 } else { 2 }">, _ as 2);
+
+// Operations:
+
+assert(_ as RinhaValue<"123 + 456">, _ as 579);
+assert(_ as RinhaValue<"123 - 456">, _ as -333);
+assert(_ as RinhaValue<"3 / 2">, _ as 1);
+assert(_ as RinhaValue<"11 * 2">, _ as 22);
+assert(_ as RinhaValue<"4 % 2">, _ as 0);
+
+assert(_ as RinhaValue<"123456789 == 123456789">, _ as true);
+assert(_ as RinhaValue<"123456789 == 45679">, _ as false);
+assert(_ as RinhaValue<"123456789 != 45679">, _ as true);
+assert(_ as RinhaValue<"123456789 != 123456789">, _ as false);
+
+assert(_ as RinhaValue<"123 < 456">, _ as true);
+assert(_ as RinhaValue<"456 < 123">, _ as false);
+assert(_ as RinhaValue<"456 <= 456">, _ as true);
+assert(_ as RinhaValue<"124 <= 123">, _ as false);
+assert(_ as RinhaValue<"456 > 123">, _ as true);
+assert(_ as RinhaValue<"123 > 456">, _ as false);
+assert(_ as RinhaValue<"123 >= 124">, _ as false);
+assert(_ as RinhaValue<"123 >= 124">, _ as false);
+
+assert(_ as RinhaValue<`123 + "def"`>, _ as "123def");
+assert(_ as RinhaValue<`"abc" + 456`>, _ as "abc456");
+assert(_ as RinhaValue<`"abc" + "def"`>, _ as "abcdef");
+assert(_ as RinhaValue<`""`>, _ as "");
+
+assert(_ as RinhaValue<`"foobarbaz" == "foobarbaz"`>, _ as true);
+assert(_ as RinhaValue<`"foobarbaz" == "foobarbax"`>, _ as false);
+
+assert(_ as RinhaValue<`(if (true) {123} else {""}) + 456`>, _ as 579);
+assert(_ as RinhaValue<`123 +  (if (true) { 456 } else {""})`>, _ as 579);
+assert(_ as RinhaValue<`(if (true) {123} else {""}) + (if (true) { 456 } else {""})`>, _ as 579);
+
+assert(_ as RinhaValue<`(if (true) {123} else {""}) - 456`>, _ as -333);
+assert(_ as RinhaValue<`123 - (if (true) { 456 } else {""})`>, _ as -333);
+assert(_ as RinhaValue<`(if (true) {123} else {""}) - (if (true) { 456 } else {""})`>, _ as -333);
+
+assert(_ as RinhaValue<`(if (true) { 123 } else {false}) + "def"`>, _ as "123def");
+assert(_ as RinhaValue<`(123 + (if (true) {"def"} else {false}))`>, _ as "123def");
+assert(_ as RinhaValue<`(if (true) { 123 } else {false}) + (if (true) {"def"} else {false})`>, _ as "123def");
+
+assert(_ as RinhaValue<`(if (true) {"abc"} else {false}) + 456`>, _ as "abc456");
+assert(_ as RinhaValue<`"abc" + (if (true) { 456 } else {false})`>, _ as "abc456");
+assert(_ as RinhaValue<`(if (true) {"abc"} else {false}) + (if (true) { 456 } else {false})`>, _ as "abc456");
+
+assert(_ as RinhaValue<`(if (true) {"abc"} else {false}) + "def"`>, _ as "abcdef");
+assert(_ as RinhaValue<`"abc" + (if (true) {"def"} else {false})`>, _ as "abcdef");
+assert(_ as RinhaValue<`(if (true) {"abc"} else {false}) + (if (true) {"def"} else {false})`>, _ as "abcdef");
+
+assert(_ as RinhaValue<`(if (true) {"abc"} else {false}) + "def"`>, _ as "abcdef");
+assert(_ as RinhaValue<`"abc" + (if (true) {"def"} else {false})`>, _ as "abcdef");
+assert(_ as RinhaValue<`(if (true) {"abc"} else {false}) + (if (true) {"def"} else {false})`>, _ as "abcdef");
+
+assert(_ as RinhaValue<`(if (true) {""} else {false})`>, _ as "");
+
+assert(_ as RinhaValue<`first((312,123))`>, _ as 312);
+assert(_ as RinhaValue<`second((1,2123))`>, _ as 2123);
